@@ -58,7 +58,7 @@ invariantFormatProvider = function (obj, format) {
 		var result = new String();
 		var raw = new String();
 		switch (typeof obj) {
-			case 'number':				
+			case 'number':
 				raw = obj.toString();				
 				var numParts = raw.split('.');				
 				var re = /(0*)(#*)\.?(#*)(0*)/g;
@@ -87,6 +87,75 @@ invariantFormatProvider = function (obj, format) {
 				}
 				
 				return result;
+			case 'object':
+				if(obj instanceof Date){
+					var re = /y{2,4}/;					
+					var result = format;
+					var match = format.match(re);
+					if(match) {					
+						if(match[0].length == 4) {
+							result = result.replace(re, obj.getFullYear());
+						}
+						else{
+							result = result.replace(re, obj.getFullYear().toString().substr(2, 2));
+						}
+					}
+					re = /M{1,2}/;
+					match = format.match(re);
+					if(match) {
+						if(match[0].length == 2) {
+							result = result.replace(re, invariantFormatProvider(obj.getMonth(),'00'));
+						}
+						else{
+							result = result.replace(re, obj.getMonth());
+						}
+					}
+					re = /d{1,2}/;
+					match = format.match(re);
+					if(match) {
+						if(match[0].length == 2) {
+							result = result.replace(re, invariantFormatProvider(obj.getDay(),'00'));
+						}
+						else{
+							result = result.replace(re, obj.getDay());
+						}
+					}
+					re = /[hH]{1,2}/;
+					match = format.match(re);
+					if(match) {
+						var hour = obj.getHours();
+						if(match[0].indexOf('h') != -1) {
+							if(hour > 12) hour -= 12;
+						}
+						if(match[0].length == 2) {
+							result = result.replace(re, invariantFormatProvider(hour,'00'));
+						}
+						else{
+							result = result.replace(re, hour);
+						}
+					}
+					re = /m{1,2}/;
+					match = format.match(re);
+					if(match) {
+						if(match[0].length == 2) {
+							result = result.replace(re, invariantFormatProvider(obj.getMinutes(),'00'));
+						}
+						else{
+							result = result.replace(re, obj.getMinutes());
+						}
+					}
+					re = /s{1,2}/;
+					match = format.match(re);
+					if(match) {
+						if(match[0].length == 2) {
+							result = result.replace(re, invariantFormatProvider(obj.getSeconds(),'00'));
+						}
+						else{
+							result = result.replace(re, obj.getSeconds());
+						}
+					}					
+					return result;
+				}
 			default:
 				return obj.toString();
 		}
@@ -147,23 +216,22 @@ String.format = function (format) {
 			return invariantFormatProvider(obj, format);
 	};
 	var formatted = unescape(format).replace('&amp;', '&');	
-	if (typeof arguments[1] == 'object') {
-		if (arguments[1] instanceof Array) {
-			var array = arguments[1];
-			for (var i = 0; i < array.length; i++) {
-				var regexp = new RegExp('\\{' + i + ':?(.*?)\\}', 'gi');
-				var match = regexp.exec(formatted);
-				formatted = formatted.replace(regexp, array[i] == null ? '' : formatProvider(array[i], match[1]));
-			}
+	if (arguments[1] instanceof Array) {
+		var array = arguments[1];
+		for (var i = 0; i < array.length; i++) {
+			var regexp = new RegExp('\\{' + i + ':?(.*?)\\}', 'gi');
+			var match = regexp.exec(formatted);
+			formatted = formatted.replace(regexp, array[i] == null ? '' : formatProvider(array[i], match[1]));
 		}
-		else{
-			var obj = arguments[1];
-			for (var i in obj) {
-				var regexp = new RegExp('@\\{' + i + ':?(.*?)\\}', 'gi');
-				var match = regexp.exec(formatted);
-				formatted = formatted.replace(regexp, obj[i] == null ? '' : formatProvider(obj[i], match[1]));
-			}
-	}	}
+	}
+	else if((typeof arguments[1] != 'number') && (typeof arguments[1] != 'string') && !(arguments[1] instanceof Date)){
+		var obj = arguments[1];
+		for (var i in obj) {
+			var regexp = new RegExp('@\\{' + i + ':?(.*?)\\}', 'gi');
+			var match = regexp.exec(formatted);
+			formatted = formatted.replace(regexp, obj[i] == null ? '' : formatProvider(obj[i], match[1]));
+		}
+	}	
 	else {		
 		for (var i = 1; i < arguments.length; i++) {
 			var regexp = new RegExp('\\{' + (i - 1).toString() + ':?(.*?)\\}', 'gi');
