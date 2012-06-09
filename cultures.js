@@ -8,7 +8,8 @@ currency : '$',
 weekDays : ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thurseday', 'Friday'],
 dayParts : ['AM', 'PM'],
 monthDays : [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
-directtion : 'ltr'
+directtion: 'ltr',
+defaultDateFormat : 'MM/dd/yy hh:mm:ss'
 }
 
 cultures['fa-IR'] = {
@@ -20,7 +21,8 @@ currency : 'ریال',
 weekDays : ['شنبه', 'یک شنبه', 'دوشنبه', 'سه شنبه', 'چهار شنبه', 'پنج شنبه', 'آدینه'],
 dayParts : ['ق.ظ','ب.ظ'],
 monthDays : [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29],
-direction : 'rtl'
+direction: 'rtl',
+defaultDateFormat : 'yy/MM/dd ساعت hh:mm:ss'
 }
 
 function GetWeekDayName(code, cultureName) {
@@ -42,10 +44,10 @@ cultures['fa-IR'].fromDate = function(date) {
    invDayNo = 365 * invDate.year + Math.floor((invDate.year + 3) / 4) - Math.floor((invDate.year + 99) / 100) + Math.floor((invDate.year + 399) / 400);
    
    for (var i = 0; i < invDate.month; ++i)
-      invDayNo += cultures.invariant.monthDays[i];
+	  invDayNo += cultures.invariant.monthDays[i];
    if (invDate.month > 1 && ((invDate.year % 4 == 0 && invDate.year % 100 != 0) || (invDate.year % 400 == 0)))
-      /* leap and after Feb */
-      invDayNo++;
+	  /* leap and after Feb */
+	  invDayNo++;
    invDayNo += invDate.day;   
 	
    calDayNo = invDayNo - 79;
@@ -57,12 +59,12 @@ cultures['fa-IR'].fromDate = function(date) {
    calDayNo %= 1461;
  
    if (calDayNo >= 366) {
-      result.year += Math.floor((calDayNo - 1) / 365);
+	  result.year += Math.floor((calDayNo - 1) / 365);
 	  calDayNo = (calDayNo - 1) % 365;
    }
  
    for (var i = 0; i < 11 && calDayNo >= cultures['fa-IR'].monthDays[i]; i++) {
-      calDayNo -= cultures['fa-IR'].monthDays[i];
+	  calDayNo -= cultures['fa-IR'].monthDays[i];
    }
    result.month = i + 1;
    result.day = calDayNo + 1;

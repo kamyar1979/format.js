@@ -141,6 +141,9 @@ invariantFormatProvider = function (obj, format) {
 }
 
 cultureFormatProvider = function (obj, cultureName, format) {
+	if (obj instanceof Date && !format) {
+		format = cultures[cultureName].defaultDateFormat;		
+	}
 	if (format) {
 		var result = new String();
 		var raw = new String();
@@ -249,7 +252,7 @@ cultureFormatProvider = function (obj, cultureName, format) {
 		}
 	}
 	else {
-		return obj.toString();
+		return String.map(obj.toString(), cultures.invariant.numbers, cultures[cultureName].numbers);
 	}
 }
 
