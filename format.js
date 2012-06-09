@@ -28,31 +28,6 @@ String.map = function(str, src, dest) {
 	return result;
 }
 
-Object.toCulture = function (obj, cultureName) {	
-	var result = new String();
-	var raw = new String();
-	switch (typeof obj) {
-		case 'number':
-			raw = obj.toString();
-			break;
-		case 'date':
-			raw = obj.toPersianDateString();
-			break;
-		case 'string':
-			var re = new RegExp('/Date\\((\\d+)\\)/');
-			if (re.test(obj)) {
-				raw = (new Date(obj.match(re)[1] * 1)).toPersianDateString();
-			}
-			else
-				raw = obj;
-			break;
-		default:
-			raw = obj.toString();
-			break;
-	}
-	return String.map(raw, cultures.invariant.numbers, cultures[cultureName].numbers);
-}
-
 invariantFormatProvider = function (obj, format) {	
 	if (format) {		
 		var result = new String();
@@ -166,115 +141,115 @@ invariantFormatProvider = function (obj, format) {
 }
 
 cultureFormatProvider = function (obj, cultureName, format) {
-	if (format) {		
+	if (format) {
 		var result = new String();
 		var raw = new String();
 		switch (typeof obj) {
-			case 'number':				
-				raw = obj.toString();				
-				var numParts = raw.split('.');				
+			case 'number':
+				raw = obj.toString();
+				var numParts = raw.split('.');
 				var re = /(0*)(#*)\.?(#*)(0*)/g;
-				var parts = re.exec(format);				
-				if(parts[1] != '' && (parts[1].length + parts[2].length > numParts[0].length)) {										
+				var parts = re.exec(format);
+				if (parts[1] != '' && (parts[1].length + parts[2].length > numParts[0].length)) {
 					result += Array(parts[1].length + parts[2].length - numParts[0].length + 1).join(cultures[cultureName].numbers[0]);
 				}
-				
+
 				result += String.map(numParts[0], cultures.invariant.numbers, cultures[cultureName].numbers);
-												
-				
-				if(numParts.length == 1) {
+
+
+				if (numParts.length == 1) {
 					numParts[1] = '';
 				}
-				
-				if(parts[3].length < numParts[1].length) {
+
+				if (parts[3].length < numParts[1].length) {
 					numParts[1] = numParts[1].substr(0, parts[3].length);
 				}
-				if((parts[4] != '') || (numParts[1] != '')) {
+				if ((parts[4] != '') || (numParts[1] != '')) {
 					result += cultures[cultureName].decimal + String.map(numParts[1], cultures.invariant.numbers, cultures[cultureName].numbers);
 				}
-				
-				
-				if((parts[4] != '') && (parts[3].length + parts[4].length > numParts[1].length)) {				
+
+
+				if ((parts[4] != '') && (parts[3].length + parts[4].length > numParts[1].length)) {
 					result += Array(parts[3].length + parts[4].length - numParts[1].length + 1).join(cultures[cultureName].numbers[0]);
 				}
-				
+
 				return result;
 			case 'object':
-				if(obj instanceof Date){
-					var re = /y{2,4}/;					
+				if (obj instanceof Date) {
+					var re = /y{2,4}/;
 					var result = format;
 					var match = format.match(re);
 					var localeDate = cultures[cultureName].fromDate(obj);
-					if(match) {
-						if(match[0].length == 4) {
+					if (match) {
+						if (match[0].length == 4) {
 							result = result.replace(re, cultureFormatProvider(localeDate.year, cultureName));
 						}
-						else{
+						else {
 							result = result.replace(re, cultureFormatProvider(localeDate.year, cultureName).substr(2, 2));
 						}
 					}
 					re = /M{1,2}/;
 					match = format.match(re);
-					if(match) {
-						if(match[0].length == 2) {
+					if (match) {
+						if (match[0].length == 2) {
 							result = result.replace(re, cultureFormatProvider(localeDate.month, cultureName, '00'));
 						}
-						else{
+						else {
 							result = result.replace(re, cultureFormatProvider(localeDate.month, cultureName));
 						}
 					}
 					re = /d{1,2}/;
 					match = format.match(re);
-					if(match) {
-						if(match[0].length == 2) {
-							result = result.replace(re, cultureFormatProvider(localeDate.day,cultureName, '00'));
+					if (match) {
+						if (match[0].length == 2) {
+							result = result.replace(re, cultureFormatProvider(localeDate.day, cultureName, '00'));
 						}
-						else{
+						else {
 							result = result.replace(re, cultureFormatProvider(localeDate.day, cultureName));
 						}
 					}
 					re = /[hH]{1,2}/;
 					match = format.match(re);
-					if(match) {
+					if (match) {
 						var hour = obj.getHours();
-						if(match[0].indexOf('h') != -1) {
-							if(hour > 12) hour -= 12;
+						if (match[0].indexOf('h') != -1) {
+							if (hour > 12) hour -= 12;
 						}
-						if(match[0].length == 2) {
+						if (match[0].length == 2) {
 							result = result.replace(re, cultureFormatProvider(hour, cultureName, '00'));
 						}
-						else{
+						else {
 							result = result.replace(re, cultureFormatProvider(hour, cultureName));
 						}
 					}
 					re = /m{1,2}/;
 					match = format.match(re);
-					if(match) {
-						if(match[0].length == 2) {
-							result = result.replace(re, cultureFormatProvider(obj.getMinutes(),cultureName,'00'));
+					if (match) {
+						if (match[0].length == 2) {
+							result = result.replace(re, cultureFormatProvider(obj.getMinutes(), cultureName, '00'));
 						}
-						else{
+						else {
 							result = result.replace(re, cultureFormatProvider(obj.getMinutes(), cultureName));
 						}
 					}
 					re = /s{1,2}/;
 					match = format.match(re);
-					if(match) {
-						if(match[0].length == 2) {
-							result = result.replace(re, cultureFormatProvider(obj.getSeconds(),cultureName ,'00'));
+					if (match) {
+						if (match[0].length == 2) {
+							result = result.replace(re, cultureFormatProvider(obj.getSeconds(), cultureName, '00'));
 						}
-						else{
+						else {
 							result = result.replace(re, cultureFormatProvider(obj.getSeconds(), cultureName));
 						}
-					}					
+					}
 					return result;
-				}			
+				}
 			default:
-				return Object.toCulture(obj, cultureName);
+				return String.map(obj.toString(), cultures.invariant.numbers, cultures[cultureName].numbers);
 		}
 	}
 	else {
-		return Object.toCulture(obj, cultureName);
+		return obj.toString();
 	}
 }
 
