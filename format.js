@@ -199,6 +199,76 @@ cultureFormatProvider = function (obj, cultureName, format) {
 				}
 				
 				return result;
+			case 'object':
+				if(obj instanceof Date){
+					var re = /y{2,4}/;					
+					var result = format;
+					var match = format.match(re);
+					var localeDate = cultures[cultureName].fromDate(obj);
+					if(match) {
+						if(match[0].length == 4) {
+							result = result.replace(re, cultureFormatProvider(localeDate.year, cultureName));
+						}
+						else{
+							result = result.replace(re, cultureFormatProvider(localeDate.year, cultureName).substr(2, 2));
+						}
+					}
+					re = /M{1,2}/;
+					match = format.match(re);
+					if(match) {
+						if(match[0].length == 2) {
+							result = result.replace(re, cultureFormatProvider(localeDate.month, cultureName, '00'));
+						}
+						else{
+							result = result.replace(re, cultureFormatProvider(localeDate.month, cultureName));
+						}
+					}
+					re = /d{1,2}/;
+					match = format.match(re);
+					if(match) {
+						if(match[0].length == 2) {
+							result = result.replace(re, cultureFormatProvider(localeDate.day,cultureName, '00'));
+						}
+						else{
+							result = result.replace(re, cultureFormatProvider(localeDate.day, cultureName));
+						}
+					}
+					re = /[hH]{1,2}/;
+					match = format.match(re);
+					if(match) {
+						var hour = obj.getHours();
+						if(match[0].indexOf('h') != -1) {
+							if(hour > 12) hour -= 12;
+						}
+						if(match[0].length == 2) {
+							result = result.replace(re, cultureFormatProvider(hour, cultureName, '00'));
+						}
+						else{
+							result = result.replace(re, cultureFormatProvider(hour, cultureName));
+						}
+					}
+					re = /m{1,2}/;
+					match = format.match(re);
+					if(match) {
+						if(match[0].length == 2) {
+							result = result.replace(re, cultureFormatProvider(obj.getMinutes(),cultureName,'00'));
+						}
+						else{
+							result = result.replace(re, cultureFormatProvider(obj.getMinutes(), cultureName));
+						}
+					}
+					re = /s{1,2}/;
+					match = format.match(re);
+					if(match) {
+						if(match[0].length == 2) {
+							result = result.replace(re, cultureFormatProvider(obj.getSeconds(),cultureName ,'00'));
+						}
+						else{
+							result = result.replace(re, cultureFormatProvider(obj.getSeconds(), cultureName));
+						}
+					}					
+					return result;
+				}			
 			default:
 				return Object.toCulture(obj, cultureName);
 		}
