@@ -4,7 +4,6 @@ function setCulture(name){
 	defaultCultureName = name;
 }
 
-
 String.prototype.format = function () {
 	var formatted = unescape(this).replace('&amp;', '&');
 	for (var i = 0; i < arguments.length; i++) {
@@ -37,25 +36,25 @@ invariantFormatProvider = function (obj, format) {
 				raw = obj.toString();				
 				var numParts = raw.split('.');				
 				var re = /(0*)(#*)\.?(#*)(0*)/g;
-				var parts = re.exec(format);				
-				if(parts[1] != '' && (parts[1].length + parts[2].length > numParts[0].length)) {										
+				var parts = re.exec(format);
+				
+				if(parts[1] != '' && (parts[1].length + parts[2].length > numParts[0].length)) {
 					result += Array(parts[1].length + parts[2].length - numParts[0].length + 1).join('0');
 				}
 				
 				result += numParts[0];
 												
-				
+								
 				if(numParts.length == 1) {
 					numParts[1] = '';
 				}
 				
-				if(parts[3].length < numParts[1].length) {
+				if(parts[3] != '' && parts[3].length < numParts[1].length) {
 					numParts[1] = numParts[1].substr(0, parts[3].length);
 				}
 				if((parts[4] != '') || (numParts[1] != '')) {
 					result += '.' + numParts[1];
-				}
-				
+				}				
 				
 				if((parts[4] != '') && (parts[3].length + parts[4].length > numParts[1].length)) {				
 					result += Array(parts[3].length + parts[4].length - numParts[1].length + 1).join('0');
@@ -257,35 +256,49 @@ cultureFormatProvider = function (obj, cultureName, format) {
 }
 
 String.format = function (format) {
-	var formatProvider = function(obj, format) {		
-		if(defaultCultureName && (defaultCultureName != ''))
-			return cultureFormatProvider(obj, defaultCultureName, format);
-		else
-			return invariantFormatProvider(obj, format);
-	};
-	var formatted = unescape(format).replace('&amp;', '&');	
-	if (arguments[1] instanceof Array) {
-		var array = arguments[1];
-		for (var i = 0; i < array.length; i++) {
-			var regexp = new RegExp('\\{' + i + ':?(.*?)\\}', 'gi');
-			var match = regexp.exec(formatted);
-			formatted = formatted.replace(regexp, array[i] == null ? '' : formatProvider(array[i], match[1]));
+	try {
+		var formatProvider = function (obj, format) {
+			if (defaultCultureName && (defaultCultureName != ''))
+				return cultureFormatProvider(obj, defaultCultureName, format);
+			else
+				return invariantFormatProvider(obj, format);
+		};
+		var formatted = unescape(format).replace('&amp;', '&');
+		if (arguments[1] instanceof Array) {
+			var array = arguments[1];
+			for (var i = 0; i < array.length; i++) {
+				var regexp = new RegExp('\\{' + i + ':?(.*?)\\}', 'gi');
+				var match = regexp.exec(formatted);
+				if (match && match.length > 0)
+					formatted = formatted.replace(regexp, array[i] == null ? '' : formatProvider(array[i], match[1]));
+				else
+					formatted = 'Invalid format';
+			}
+		}
+		else if ((typeof arguments[1] != 'number') && (typeof arguments[1] != 'string') && !(arguments[1] instanceof Date)) {
+			var obj = arguments[1];
+			for (var i in obj) {
+				var regexp = new RegExp('@\\{' + i + ':?(.*?)\\}', 'gi');
+				var match = regexp.exec(formatted);
+				if (match && match.length > 0)
+					formatted = formatted.replace(regexp, obj[i] == null ? '' : formatProvider(obj[i], match[1]));
+				else
+					formatted = 'Invalid format';
+			}
+		}
+		else {
+			for (var i = 1; i < arguments.length; i++) {
+				var regexp = new RegExp('\\{' + (i - 1).toString() + ':?(.*?)\\}', 'gi');
+				var match = regexp.exec(formatted);
+				if (match && match.length > 0)
+					formatted = formatted.replace(regexp, arguments[i] == null ? '' : formatProvider(arguments[i], match[1]));
+				else
+					formatted = 'Invalid format';
+			}
 		}
 	}
-	else if((typeof arguments[1] != 'number') && (typeof arguments[1] != 'string') && !(arguments[1] instanceof Date)){
-		var obj = arguments[1];
-		for (var i in obj) {
-			var regexp = new RegExp('@\\{' + i + ':?(.*?)\\}', 'gi');
-			var match = regexp.exec(formatted);
-			formatted = formatted.replace(regexp, obj[i] == null ? '' : formatProvider(obj[i], match[1]));
-		}
-	}	
-	else {		
-		for (var i = 1; i < arguments.length; i++) {
-			var regexp = new RegExp('\\{' + (i - 1).toString() + ':?(.*?)\\}', 'gi');
-			var match = regexp.exec(formatted);			
-			formatted = formatted.replace(regexp, arguments[i] == null ? '' : formatProvider(arguments[i], match[1]));
-		}
+	catch (error) {
+		format = error.message;
 	}
 	return formatted;
 }

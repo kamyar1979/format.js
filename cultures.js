@@ -1,4 +1,4 @@
-var cultures = new Object();
+﻿var cultures = new Object();
 
 cultures.invariant = {
 numbers : '0123456789',
