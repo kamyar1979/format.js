@@ -255,6 +255,50 @@ cultureFormatProvider = function (obj, cultureName, format) {
 	}
 }
 
+String.cultureFormat = function (culture, format) {
+	try {
+		var formatProvider = function (obj, format) {
+			if (culture && (culture != ''))
+				return cultureFormatProvider(obj, culture, format);
+			else
+				return invariantFormatProvider(obj, format);
+		};
+
+		var formatted = unescape(format).replace('&amp;', '&');
+		if (arguments[2] instanceof Array) {
+			var array = arguments[2];
+			for (var i = 0; i < array.length; i++) {
+				var regexp = new RegExp('\\{' + i + ':?(.*?)\\}', 'gi');
+				var match = regexp.exec(formatted);
+				if (match && match.length > 0)
+					formatted = formatted.replace(regexp, array[i] == null ? '' : formatProvider(array[i], match[1]));
+			}
+		}
+		else if ((typeof arguments[2] != 'number') && (typeof arguments[2] != 'string') && !(arguments[2] instanceof Date)) {
+			var obj = arguments[2];
+			for (var i in obj) {
+				var regexp = new RegExp('@\\{' + i + ':?(.*?)\\}', 'gi');
+				var match = regexp.exec(formatted);
+				if (match && match.length > 0)
+					formatted = formatted.replace(regexp, obj[i] == null ? '' : formatProvider(obj[i], match[1]));
+			}
+		}
+		else {
+			for (var i = 2; i < arguments.length; i++) {
+				var regexp = new RegExp('\\{' + (i - 2).toString() + ':?(.*?)\\}', 'gi');
+				var match = regexp.exec(formatted);
+				if (match && match.length > 0)
+					formatted = formatted.replace(regexp, arguments[i] == null ? '' : formatProvider(arguments[i], match[1]));
+			}
+		}
+	}
+	catch (error) {
+		format = error.message;
+	}
+	return formatted;
+}
+
+
 String.format = function (format) {
 	try {
 		var formatProvider = function (obj, format) {
