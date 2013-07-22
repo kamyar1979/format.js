@@ -148,7 +148,7 @@ cultureFormatProvider = function (obj, cultureName, format) {
 		var raw = new String();
 		switch (typeof obj) {
 			case 'number':
-				raw = obj.toString();
+				raw = obj.toString();				
 				var numParts = raw.split('.');
 				var re = /(0*)(#*)\.?(#*)(0*)/g;
 				var parts = re.exec(format);
@@ -166,7 +166,7 @@ cultureFormatProvider = function (obj, cultureName, format) {
 				if (parts[3].length < numParts[1].length) {
 					numParts[1] = numParts[1].substr(0, parts[3].length);
 				}
-				if ((parts[4] != '') || (numParts[1] != '')) {
+				if ((parts[4] != '') || (numParts[1] != '')) {					
 					result += cultures[cultureName].decimal + String.map(numParts[1], cultures.invariant.numbers, cultures[cultureName].numbers);
 				}
 
@@ -247,11 +247,11 @@ cultureFormatProvider = function (obj, cultureName, format) {
 					return result;
 				}
 			default:
-				return String.map(obj.toString(), cultures.invariant.numbers, cultures[cultureName].numbers);
+				return String.map(obj.toString(), cultures.invariant.numbers + cultures.invariant.decimal, cultures[cultureName].numbers + cultures[cultureName].decimal);
 		}
 	}
 	else {
-		return String.map(obj.toString(), cultures.invariant.numbers, cultures[cultureName].numbers);
+		return String.map(obj.toString(), cultures.invariant.numbers + cultures.invariant.decimal, cultures[cultureName].numbers + cultures[cultureName].decimal);
 	}
 }
 
