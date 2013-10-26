@@ -140,6 +140,8 @@ invariantFormatProvider = function (obj, format) {
 }
 
 cultureFormatProvider = function (obj, cultureName, format) {
+	if (obj == null)
+		return '';
 	if (obj instanceof Date && !format) {
 		format = cultures[cultureName].defaultDateFormat;		
 	}
