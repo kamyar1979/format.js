@@ -5,10 +5,10 @@ function setCulture(name) {
 }
 
 String.prototype.format = function () {
-    var formatted = this.replace('&amp;', '&');
+    var formatted = decodeURI(this).replace('&amp;', '&');
     for (var i = 0; i < arguments.length; i++) {
         var regexp = new RegExp('\\{' + i + '\\}', 'gi');
-        formatted = formatted.replace(regexp, arguments[i] === null ? '' : arguments[i].toString());
+        formatted = formatted.replace(regexp, arguments[i] !== null ? arguments[i].toString() : '');
     }
     return formatted;
 };
@@ -276,7 +276,7 @@ String.cultureFormat = function (culture, format) {
                 return invariantFormatProvider(obj, format);
         };
 
-        formatted = format.replace('&amp;', '&');
+        formatted = decodeURI(format).replace('&amp;', '&');
         if (arguments[2] instanceof Array) {
             var array = arguments[2];
             for (i = 0; i < array.length; i++) {
@@ -324,7 +324,7 @@ String.format = function (format) {
             else
                 return invariantFormatProvider(obj, format);
         };
-        formatted = format.replace('&amp;', '&');
+        formatted = decodeURI(format).replace('&amp;', '&');
         if (arguments[1] instanceof Array) {
             var array = arguments[1];
             for (i = 0; i < array.length; i++) {
