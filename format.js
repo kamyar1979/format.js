@@ -8,7 +8,7 @@ String.prototype.format = function () {
 	var formatted = decodeURI(this).replace('&amp;', '&');
 	for (var i = 0; i < arguments.length; i++) {
 		var regexp = new RegExp('\\{' + i + '\\}', 'gi');
-		formatted = formatted.replace(regexp, arguments[i] != null ? arguments[i].toString() : '');
+		formatted = formatted.replace(regexp, arguments[i] !== null ? arguments[i].toString() : '');
 	}
 	return formatted;
 };
