@@ -146,7 +146,7 @@ cultureFormatProvider = function (obj, cultureName, format) {
 	if (obj instanceof Date && !format) {
 		format = cultures[cultureName].defaultDateFormat;
 	}
-	if (obj !== null) {
+	if (obj !== undefined && obj !== null) {
 		if (format) {
 			var raw = '';
 			var regexp;
