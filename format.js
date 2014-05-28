@@ -78,20 +78,20 @@ invariantFormatProvider = function (obj, format) {
 					match = format.match(regexp);
 					if (match) {
 						if (match[0].length === 2) {
-							result = result.replace(regexp, invariantFormatProvider(obj.getMonth(), '00'));
+							result = result.replace(regexp, invariantFormatProvider(obj.getMonth() + 1, '00'));
 						}
 						else {
-							result = result.replace(regexp, obj.getMonth().toString());
+							result = result.replace(regexp, (obj.getMonth() + 1).toString());
 						}
 					}
 					regexp = /d{1,2}/;
 					match = format.match(regexp);
 					if (match) {
 						if (match[0].length === 2) {
-							result = result.replace(regexp, invariantFormatProvider(obj.getDay(), '00'));
+							result = result.replace(regexp, invariantFormatProvider(obj.getDate(), '00'));
 						}
 						else {
-							result = result.replace(regexp, obj.getDay().toString());
+							result = result.replace(regexp, obj.getDate().toString());
 						}
 					}
 					regexp = /[hH]{1,2}/;
