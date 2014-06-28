@@ -311,57 +311,67 @@ String.cultureFormat = function (culture, format) {
 	return formatted;
 };
 
-
-String.format = function (format) {
-	var formatted;
-	try {
-		var regexp;
-		var match;
-		var i = 0;
-		var formatProvider = function (obj, format) {
-			if (defaultCultureName && (defaultCultureName !== ''))
-				return cultureFormatProvider(obj, defaultCultureName, format);
-			else
-				return invariantFormatProvider(obj, format);
-		};
-		formatted = decodeURI(format).replace('&amp;', '&');
-		if (arguments[1] instanceof Array) {
-			var array = arguments[1];
-			for (i = 0; i < array.length; i++) {
-				regexp = new RegExp('\\{' + i + ':?(.*?)\\}', 'gi');
-				match = regexp.exec(formatted);
-				if (match && match.length > 0)
-					formatted = formatted.replace(regexp, array[i] === null ? '' : formatProvider(array[i], match[1]));
-				else
-					formatted = 'Invalid format';
-			}
-		}
-		else if ((typeof arguments[1] !== 'number') && (typeof arguments[1] !== 'string') && !(arguments[1] instanceof Date)) {
-			var obj = arguments[1];
-			for (var item in obj) {
-				regexp = new RegExp('@\\{' + item + ':?(.*?)\\}', 'gi');
-				match = regexp.exec(formatted);
-				if (match && match.length > 0)
-					if (obj.hasOwnProperty(item))
-						formatted = formatted.replace(regexp, obj[item] === null ? '' : formatProvider(obj[item], match[1]));
-					else
-						formatted = 'Invalid format';
-			}
-		}
-		else {
-			for (i = 1; i < arguments.length; i++) {
-				regexp = new RegExp('\\{' + (i - 1).toString() + ':?(.*?)\\}', 'gi');
-				match = regexp.exec(formatted);
-				if (match && match.length > 0)
-					formatted = formatted.replace(regexp, arguments[i] === null ? '' : formatProvider(arguments[i], match[1]));
-				else
-					formatted = 'Invalid format';
-			}
-		}
-	}
-	catch (error) {
-		format = error.message;
-	}
-	return formatted;
-};
+String.format = function() {
+    var format_provider;
+    var format;
+    var start_index = 1;
+    if(typeof arguments[0] == 'function') {
+        format_provider = arguments[0];
+        format = arguments[1];
+        start_index = 2;
+    }
+    else{
+        format = arguments[0];
+        format_provider = function (obj, format) {
+            if (defaultCultureName && (defaultCultureName !== ''))
+                return cultureFormatProvider(obj, defaultCultureName, format);
+            else
+                return invariantFormatProvider(obj, format);
+        };
+    }
+    var formatted;
+    try {
+        var regexp;
+        var match;
+        var i = 0;
+        formatted = decodeURI(format).replace('&amp;', '&');
+        if (arguments[start_index] instanceof Array) {
+            var array = arguments[start_index];
+            for (i = 0; i < array.length; i++) {
+                regexp = new RegExp('\\{' + i + ':?(.*?)\\}', 'gi');
+                match = regexp.exec(formatted);
+                if (match && match.length > 0)
+                    formatted = formatted.replace(regexp, array[i] === null ? '' : format_provider(array[i], match[1]));
+                else
+                    formatted = 'Invalid format';
+            }
+        }
+        else if ((typeof arguments[start_index] !== 'number') && (typeof arguments[start_index] !== 'string') && !(arguments[start_index] instanceof Date)) {
+            var obj = arguments[start_index];
+            for (var item in obj) {
+                regexp = new RegExp('@\\{' + item + ':?(.*?)\\}', 'gi');
+                match = regexp.exec(formatted);
+                if (match && match.length > 0)
+                    if (obj.hasOwnProperty(item))
+                        formatted = formatted.replace(regexp, obj[item] === null ? '' : format_provider(obj[item], match[1]));
+                    else
+                        formatted = 'Invalid format';
+            }
+        }
+        else {
+            for (i = start_index; i < arguments.length; i++) {
+                regexp = new RegExp('\\{' + (i - start_index).toString() + ':?(.*?)\\}', 'gi');
+                match = regexp.exec(formatted);
+                if (match && match.length > 0)
+                    formatted = formatted.replace(regexp, arguments[i] === null ? '' : format_provider(arguments[i], match[1]));
+                else
+                    formatted = 'Invalid format';
+            }
+        }
+    }
+    catch (error) {
+        format = error.message;
+    }
+    return formatted;
+}
 
