@@ -257,7 +257,12 @@ cultureFormatProvider = function (obj, cultureName, format) {
 			}
 		}
 		else {
-			result = String.map(obj.toString(), cultures.invariant.numbers + cultures.invariant.decimal, cultures[cultureName].numbers + cultures[cultureName].decimal);
+            regexp = /\d*\.?\d+/;
+            var match = regexp.exec(obj.toString());
+            if(match)
+                result = obj.toString().replace(match[0], String.map(match[0], cultures.invariant.numbers + cultures.invariant.decimal, cultures[cultureName].numbers + cultures[cultureName].decimal));
+            else
+                result = obj.toString();
 		}
 	}
 	return result;
